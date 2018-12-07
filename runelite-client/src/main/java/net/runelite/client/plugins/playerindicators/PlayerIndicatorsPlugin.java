@@ -104,21 +104,23 @@ public class PlayerIndicatorsPlugin extends Plugin
 	@Subscribe
 	public void onChatMessage(ChatMessage event)
 	{
-		if (event.getType() == ChatMessageType.UNKNOWN){
-			String msg = event.getMessage();
-			if (msg.equals("Other player is busy at the moment."))
-			{
-				playerIndicatorsZMIOverlay.tradeState = 1;
-			} else if (msg.equals("Sending trade offer...")) {
-				playerIndicatorsZMIOverlay.tradeState = 2;
-			} else if ((msg.contains("accepted") || msg.contains("declined") || msg.contains("inventory space")))
-			{
-				playerIndicatorsZMIOverlay.tradeState = 0;
-			}
+		if (config.highlightZMI()){
+			if (event.getType() == ChatMessageType.UNKNOWN){
+				String msg = event.getMessage();
+				if (msg.equals("Other player is busy at the moment."))
+				{
+					playerIndicatorsZMIOverlay.tradeState = 1;
+				} else if (msg.equals("Sending trade offer...")) {
+					playerIndicatorsZMIOverlay.tradeState = 2;
+				} else if ((msg.contains("accepted") || msg.contains("declined") || msg.contains("inventory space")))
+				{
+					playerIndicatorsZMIOverlay.tradeState = 0;
+				}
 
-		} else if ((event.getType() == ChatMessageType.TRADE) && (event.getMessage().contains("wishes to trade with you")) && (clanManager.getRank(event.getName()) == OWNER))
-		{
-			playerIndicatorsZMIOverlay.tradeState = 3;
+			} else if ((event.getType() == ChatMessageType.TRADE) && (event.getMessage().contains("wishes to trade with you")) && (clanManager.getRank(event.getName()) == OWNER))
+			{
+				playerIndicatorsZMIOverlay.tradeState = 3;
+			}
 		}
 	}
 
