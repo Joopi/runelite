@@ -47,7 +47,7 @@ public class PlayerIndicatorsService
 	public void forEachPlayer(final BiConsumer<Player, Color> consumer)
 	{
 		if (!config.highlightOwnPlayer() && !config.drawClanMemberNames()
-			&& !config.highlightFriends() && !config.highlightNonClanMembers())
+				&& !config.highlightFriends() && !config.highlightNonClanMembers())
 		{
 			return;
 		}
@@ -65,10 +65,7 @@ public class PlayerIndicatorsService
 
 			if (player == localPlayer)
 			{
-				if (config.highlightOwnPlayer())
-				{
-					consumer.accept(player, config.getOwnPlayerColor());
-				}
+				continue;
 			}
 			else if (config.highlightFriends() && player.isFriend())
 			{

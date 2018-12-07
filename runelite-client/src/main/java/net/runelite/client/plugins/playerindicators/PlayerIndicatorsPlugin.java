@@ -24,18 +24,22 @@
  */
 package net.runelite.client.plugins.playerindicators;
 
+import net.runelite.client.eventbus.Subscribe;
 import com.google.inject.Provides;
 import java.awt.Color;
+import java.awt.Graphics;
 import javax.inject.Inject;
-import net.runelite.api.ClanMemberRank;
+
+import net.runelite.api.*;
+
 import static net.runelite.api.ClanMemberRank.UNRANKED;
-import net.runelite.api.Client;
+import static net.runelite.api.ClanMemberRank.OWNER;
 import static net.runelite.api.MenuAction.*;
-import net.runelite.api.MenuEntry;
-import net.runelite.api.Player;
+
+import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.MenuEntryAdded;
+import net.runelite.api.ClanMemberRank;
 import net.runelite.client.config.ConfigManager;
-import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.game.ClanManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
@@ -43,9 +47,9 @@ import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.util.ColorUtil;
 
 @PluginDescriptor(
-	name = "Player Indicators",
-	description = "Highlight players on-screen and/or on the minimap",
-	tags = {"highlight", "minimap", "overlay", "players"}
+		name = "Player Indicators",
+		description = "Highlight players on-screen and/or on the minimap",
+		tags = {"highlight", "minimap", "overlay", "players"}
 )
 public class PlayerIndicatorsPlugin extends Plugin
 {
@@ -65,6 +69,9 @@ public class PlayerIndicatorsPlugin extends Plugin
 	private PlayerIndicatorsMinimapOverlay playerIndicatorsMinimapOverlay;
 
 	@Inject
+	private PlayerIndicatorsZMIOverlay playerIndicatorsZMIOverlay;
+
+	@Inject
 	private Client client;
 
 	@Inject
@@ -82,6 +89,7 @@ public class PlayerIndicatorsPlugin extends Plugin
 		overlayManager.add(playerIndicatorsOverlay);
 		overlayManager.add(playerIndicatorsTileOverlay);
 		overlayManager.add(playerIndicatorsMinimapOverlay);
+		overlayManager.add(playerIndicatorsZMIOverlay);
 	}
 
 	@Override
@@ -90,7 +98,30 @@ public class PlayerIndicatorsPlugin extends Plugin
 		overlayManager.remove(playerIndicatorsOverlay);
 		overlayManager.remove(playerIndicatorsTileOverlay);
 		overlayManager.remove(playerIndicatorsMinimapOverlay);
+		overlayManager.remove(playerIndicatorsZMIOverlay);
 	}
+
+	@Subscribe
+	public void onChatMessage(ChatMessage event)
+	{
+		if (event.getType() == ChatMessageType.UNKNOWN){
+			String msg = event.getMessage();
+			if (msg.equals("Other player is busy at the moment."))
+			{
+				playerIndicatorsZMIOverlay.tradeState = 1;
+			} else if (msg.equals("Sending trade offer...")) {
+				playerIndicatorsZMIOverlay.tradeState = 2;
+			} else if ((msg.contains("accepted") || msg.contains("declined") || msg.contains("inventory space")))
+			{
+				playerIndicatorsZMIOverlay.tradeState = 0;
+			}
+
+		} else if ((event.getType() == ChatMessageType.TRADE) && (event.getMessage().contains("wishes to trade with you")) && (clanManager.getRank(event.getName()) == OWNER))
+		{
+			playerIndicatorsZMIOverlay.tradeState = 3;
+		}
+	}
+
 
 	@Subscribe
 	public void onMenuEntryAdded(MenuEntryAdded menuEntryAdded)
@@ -104,16 +135,16 @@ public class PlayerIndicatorsPlugin extends Plugin
 
 		int identifier = menuEntryAdded.getIdentifier();
 		if (type == FOLLOW.getId() || type == TRADE.getId()
-			|| type == SPELL_CAST_ON_PLAYER.getId() || type == ITEM_USE_ON_PLAYER.getId()
-			|| type == PLAYER_FIRST_OPTION.getId()
-			|| type == PLAYER_SECOND_OPTION.getId()
-			|| type == PLAYER_THIRD_OPTION.getId()
-			|| type == PLAYER_FOURTH_OPTION.getId()
-			|| type == PLAYER_FIFTH_OPTION.getId()
-			|| type == PLAYER_SIXTH_OPTION.getId()
-			|| type == PLAYER_SEVENTH_OPTION.getId()
-			|| type == PLAYER_EIGTH_OPTION.getId()
-			|| type == RUNELITE.getId())
+				|| type == SPELL_CAST_ON_PLAYER.getId() || type == ITEM_USE_ON_PLAYER.getId()
+				|| type == PLAYER_FIRST_OPTION.getId()
+				|| type == PLAYER_SECOND_OPTION.getId()
+				|| type == PLAYER_THIRD_OPTION.getId()
+				|| type == PLAYER_FOURTH_OPTION.getId()
+				|| type == PLAYER_FIFTH_OPTION.getId()
+				|| type == PLAYER_SIXTH_OPTION.getId()
+				|| type == PLAYER_SEVENTH_OPTION.getId()
+				|| type == PLAYER_EIGTH_OPTION.getId()
+				|| type == RUNELITE.getId())
 		{
 			final Player localPlayer = client.getLocalPlayer();
 			Player[] players = client.getCachedPlayers();

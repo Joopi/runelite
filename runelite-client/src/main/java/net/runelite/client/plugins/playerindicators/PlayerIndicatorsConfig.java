@@ -60,6 +60,7 @@ public interface PlayerIndicatorsConfig extends Config
 		name = "Highlight friends",
 		description = "Configures whether or not friends should be highlighted"
 	)
+
 	default boolean highlightFriends()
 	{
 		return true;
@@ -192,8 +193,18 @@ public interface PlayerIndicatorsConfig extends Config
 		name = "Show clan ranks",
 		description = "Add clan rank to right click menu and next to player names"
 	)
+
 	default boolean showClanRanks()
 	{
 		return true;
 	}
+
+	@ConfigItem(
+		position = 15,
+		keyName = "highlightZMI",
+		name = "Highlight ZMI",
+		description = "Enable ZMI highlighting when running essences"
+	)
+
+	default boolean highlightZMI() { return true; }
 }
