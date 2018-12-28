@@ -25,6 +25,7 @@
 package net.runelite.client.plugins.fps;
 
 import javax.inject.Inject;
+
 import net.runelite.api.events.FocusChanged;
 
 /**
@@ -36,109 +37,93 @@ import net.runelite.api.events.FocusChanged;
  * For low powered computers, the RS client is often throttled by the hardware or OS and draws at 25-30 fps.
  * The nano timer is not used in this scenario.
  * Instead to catch up the RS client runs several cycles before drawing, thus maintaining 50 cycles / second.
- *
+ * <p>
  * Enforcing FPS in the draw code does not impact the client engine's ability to run including its audio,
  * even when forced to 1 FPS with this plugin.
  */
-public class FpsDrawListener implements Runnable
-{
-	private static final int SAMPLE_SIZE = 4;
+public class FpsDrawListener implements Runnable {
+    private static final int SAMPLE_SIZE = 4;
 
-	private final FpsConfig config;
+    private final FpsConfig config;
 
-	private long targetDelay = 0;
+    private long targetDelay = 0;
 
-	// Often changing values
-	private boolean isFocused = true;
+    // Often changing values
+    private boolean isFocused = true;
 
-	// Working set
-	private long lastMillis = 0;
-	private long[] lastDelays = new long[SAMPLE_SIZE];
-	private int lastDelayIndex = 0;
-	private long sleepDelay = 0;
+    // Working set
+    private long lastMillis = 0;
+    private long[] lastDelays = new long[SAMPLE_SIZE];
+    private int lastDelayIndex = 0;
+    private long sleepDelay = 0;
 
-	@Inject
-	private FpsDrawListener(FpsConfig config)
-	{
-		this.config = config;
-		reloadConfig();
-	}
+    @Inject
+    private FpsDrawListener(FpsConfig config) {
+        this.config = config;
+        reloadConfig();
+    }
 
-	void reloadConfig()
-	{
-		lastMillis = System.currentTimeMillis();
-		targetDelay = 1000 / Math.max(1, config.maxFps());
-		sleepDelay = targetDelay;
+    void reloadConfig() {
+        lastMillis = System.currentTimeMillis();
+        targetDelay = 1000 / Math.max(1, config.maxFps());
+        sleepDelay = targetDelay;
 
-		for (int i = 0; i < SAMPLE_SIZE; i++)
-		{
-			lastDelays[i] = targetDelay;
-		}
-	}
+        for (int i = 0; i < SAMPLE_SIZE; i++) {
+            lastDelays[i] = targetDelay;
+        }
+    }
 
-	void onFocusChanged(FocusChanged event)
-	{
-		this.isFocused = event.isFocused();
-	}
+    void onFocusChanged(FocusChanged event) {
+        this.isFocused = event.isFocused();
+    }
 
-	private boolean isEnforced()
-	{
-		return FpsLimitMode.ALWAYS == config.limitMode()
-			|| (FpsLimitMode.UNFOCUSED == config.limitMode() && !isFocused);
-	}
+    private boolean isEnforced() {
+        return FpsLimitMode.ALWAYS == config.limitMode()
+                || (FpsLimitMode.UNFOCUSED == config.limitMode() && !isFocused);
+    }
 
-	@Override
-	public void run()
-	{
+    @Override
+    public void run() {
 
-		if (!isEnforced())
-		{
-			return;
-		}
+        if (!isEnforced()) {
+            return;
+        }
 
-		// We can't trust client.getFPS to get frame-perfect FPS knowledge
-		// If we do try to use client.getFPS, we will end up oscillating
-		// So we rely on currentTimeMillis which is occasionally cached by the JVM unlike nanotime
-		// Its caching will not cause oscillation as it is granular enough for our uses here
-		final long before = lastMillis;
-		final long now = System.currentTimeMillis();
+        // We can't trust client.getFPS to get frame-perfect FPS knowledge
+        // If we do try to use client.getFPS, we will end up oscillating
+        // So we rely on currentTimeMillis which is occasionally cached by the JVM unlike nanotime
+        // Its caching will not cause oscillation as it is granular enough for our uses here
+        final long before = lastMillis;
+        final long now = System.currentTimeMillis();
 
-		lastMillis = now;
-		lastDelayIndex = (lastDelayIndex + 1) % SAMPLE_SIZE;
-		lastDelays[lastDelayIndex] = now - before;
+        lastMillis = now;
+        lastDelayIndex = (lastDelayIndex + 1) % SAMPLE_SIZE;
+        lastDelays[lastDelayIndex] = now - before;
 
-		// We take a sampling approach because sometimes the game client seems to repaint
-		// after only running 1 game cycle, and then runs repaint again after running 30 cycles
-		long averageDelay = 0;
-		for (int i = 0; i < SAMPLE_SIZE; i++)
-		{
-			averageDelay += lastDelays[i];
-		}
-		averageDelay /= lastDelays.length;
+        // We take a sampling approach because sometimes the game client seems to repaint
+        // after only running 1 game cycle, and then runs repaint again after running 30 cycles
+        long averageDelay = 0;
+        for (int i = 0; i < SAMPLE_SIZE; i++) {
+            averageDelay += lastDelays[i];
+        }
+        averageDelay /= lastDelays.length;
 
-		// Sleep delay is a moving target due to the nature of how and when the engine
-		// decides to run cycles.
-		// This will also keep us safe from time spent in plugins conditionally
-		// as some plugins and overlays are only appropriate in some game areas
-		if (averageDelay > targetDelay)
-		{
-			sleepDelay--;
-		}
-		else if (averageDelay < targetDelay)
-		{
-			sleepDelay++;
-		}
+        // Sleep delay is a moving target due to the nature of how and when the engine
+        // decides to run cycles.
+        // This will also keep us safe from time spent in plugins conditionally
+        // as some plugins and overlays are only appropriate in some game areas
+        if (averageDelay > targetDelay) {
+            sleepDelay--;
+        } else if (averageDelay < targetDelay) {
+            sleepDelay++;
+        }
 
-		if (sleepDelay > 0)
-		{
-			try
-			{
-				Thread.sleep(sleepDelay);
-			}
-			catch (InterruptedException e)
-			{
-				// Can happen on shutdown
-			}
-		}
-	}
+        if (sleepDelay > 0) {
+            try {
+                Thread.sleep(sleepDelay);
+            } catch (InterruptedException e) {
+                // Can happen on shutdown
+            }
+        }
+    }
 }
