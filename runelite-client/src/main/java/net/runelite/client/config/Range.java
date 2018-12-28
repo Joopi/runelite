@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Adam <Adam@sigterm.info>
+ * Copyright (c) 2018, Adam <Adam@sigterm.info>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,26 +22,23 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.cache.server;
+package net.runelite.client.config;
 
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.SimpleChannelInboundHandler;
-import net.runelite.protocol.update.encoders.XorEncoder;
-import net.runelite.protocol.api.update.EncryptionPacket;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class EncryptionHandler extends SimpleChannelInboundHandler<EncryptionPacket>
+/**
+ * Used with ConfigItem, describes valid int range for a config item.
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+@Documented
+public @interface Range
 {
+	int min() default Integer.MIN_VALUE;
 
-	@Override
-	protected void channelRead0(ChannelHandlerContext ctx, EncryptionPacket encryptionPacket) throws Exception
-	{
-		ChannelPipeline p = ctx.pipeline();
-		XorEncoder xorEncoder = p.get(XorEncoder.class);
-		if (xorEncoder != null)
-		{
-			xorEncoder.setKey(encryptionPacket.getKey());
-		}
-	}
-
+	int max() default Integer.MAX_VALUE;
 }

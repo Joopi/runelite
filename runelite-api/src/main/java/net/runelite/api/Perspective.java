@@ -499,7 +499,7 @@ public class Perspective
 	 * @param point the coordinate of the tile
 	 * @return the clickable area of the model
 	 */
-	public static Area getClickbox(@Nonnull Client client, Model model, int orientation, @Nonnull LocalPoint point)
+	public static @Nullable Area getClickbox(@Nonnull Client client, Model model, int orientation, @Nonnull LocalPoint point)
 	{
 		if (model == null)
 		{
@@ -517,7 +517,7 @@ public class Perspective
 		Area clickBox = get2DGeometry(client, triangles, point);
 		Area visibleAABB = getAABB(client, vertices, point);
 
-		if (visibleAABB == null || clickBox == null)
+		if (visibleAABB == null)
 		{
 			return null;
 		}
@@ -539,7 +539,7 @@ public class Perspective
 			&& (point.getY() < 0 || point.getY() >= client.getViewportHeight());
 	}
 
-	private static Area get2DGeometry(
+	private static @Nonnull Area get2DGeometry(
 		@Nonnull Client client,
 		@Nonnull List<Triangle> triangles,
 		@Nonnull LocalPoint point
