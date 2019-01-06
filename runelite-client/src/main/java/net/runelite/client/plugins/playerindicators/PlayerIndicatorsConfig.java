@@ -207,4 +207,12 @@ public interface PlayerIndicatorsConfig extends Config
 	)
 
 	default boolean highlightZMI() { return true; }
+
+    @ConfigItem(
+            keyName = "hostname",
+            name = "Host name",
+            description = "Name of who is hosting. Leave empty if it is the owner of the clan chat.",
+            position = 16
+    )
+    String hostname();
 }

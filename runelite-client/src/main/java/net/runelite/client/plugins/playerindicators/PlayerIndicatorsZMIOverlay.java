@@ -51,7 +51,7 @@ public class PlayerIndicatorsZMIOverlay extends Overlay
     {
         ClanMemberRank rank = clanManager.getRank(actor.getName());
         int anim = actor.getAnimation();
-        if (rank == ClanMemberRank.OWNER) {
+        if ((rank == ClanMemberRank.OWNER) || (config.hostname().equals(actor.getName()))) {
             if (anim == -1) {
                 graphics.setColor(color.GREEN);
             } else {

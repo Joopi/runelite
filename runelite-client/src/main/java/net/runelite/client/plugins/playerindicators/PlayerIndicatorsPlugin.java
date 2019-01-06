@@ -117,7 +117,7 @@ public class PlayerIndicatorsPlugin extends Plugin
 					playerIndicatorsZMIOverlay.tradeState = 0;
 				}
 
-			} else if ((event.getType() == ChatMessageType.TRADE) && (event.getMessage().contains("wishes to trade with you")) && (clanManager.getRank(event.getName()) == OWNER))
+			} else if ((event.getType() == ChatMessageType.TRADE) && (event.getMessage().contains("wishes to trade with you")) && ((clanManager.getRank(event.getName()) == OWNER) || (config.hostname().equals(event.getName()))))
 			{
 				playerIndicatorsZMIOverlay.tradeState = 3;
 			}
