@@ -112,7 +112,7 @@ public class PlayerIndicatorsPlugin extends Plugin
 					playerIndicatorsZMIOverlay.tradeState = 1;
 				} else if (msg.equals("Sending trade offer...")) {
 					playerIndicatorsZMIOverlay.tradeState = 2;
-				} else if ((msg.contains("accepted") || msg.contains("declined") || msg.contains("inventory space")))
+				} else if ((msg.contains("Accepted") || msg.contains("declined") || msg.contains("inventory space")))
 				{
 					playerIndicatorsZMIOverlay.tradeState = 0;
 				}
