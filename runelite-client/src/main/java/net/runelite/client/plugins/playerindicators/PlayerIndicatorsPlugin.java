@@ -26,8 +26,8 @@ package net.runelite.client.plugins.playerindicators;
 
 import net.runelite.client.eventbus.Subscribe;
 import com.google.inject.Provides;
-import java.awt.Color;
-import java.awt.Graphics;
+
+import java.awt.*;
 import javax.inject.Inject;
 
 import net.runelite.api.*;
@@ -51,6 +51,7 @@ import net.runelite.client.util.ColorUtil;
 		description = "Highlight players on-screen and/or on the minimap",
 		tags = {"highlight", "minimap", "overlay", "players"}
 )
+
 public class PlayerIndicatorsPlugin extends Plugin
 {
 	@Inject
@@ -105,13 +106,13 @@ public class PlayerIndicatorsPlugin extends Plugin
 	public void onChatMessage(ChatMessage event)
 	{
 		if (config.highlightZMI()){
-			if (event.getType() == ChatMessageType.UNKNOWN){
+			if (event.getType() == ChatMessageType.TRANSACTION_COMPLETE){
 				String msg = event.getMessage();
 				if (msg.equals("Other player is busy at the moment."))
 				{
 					playerIndicatorsZMIOverlay.tradeState = 1;
 				} else if (msg.equals("Sending trade offer...")) {
-					playerIndicatorsZMIOverlay.tradeState = 2;
+				playerIndicatorsZMIOverlay.tradeState = 2;
 				} else if ((msg.contains("Accepted") || msg.contains("declined") || msg.contains("inventory space")))
 				{
 					playerIndicatorsZMIOverlay.tradeState = 0;
