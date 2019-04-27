@@ -91,7 +91,7 @@ public class AntiDragPlugin extends Plugin implements KeyListener
 	@Override
 	public void keyReleased(KeyEvent e)
 	{
-		if (e.getKeyCode() == KeyEvent.VK_SHIFT)
+		if ((e.getKeyCode() == KeyEvent.VK_SHIFT) && (config.alwaysOn() == false))
 		{
 			client.setInventoryDragDelay(DEFAULT_DELAY);
 		}
@@ -100,7 +100,7 @@ public class AntiDragPlugin extends Plugin implements KeyListener
 	@Subscribe
 	public void onFocusChanged(FocusChanged focusChanged)
 	{
-		if (!focusChanged.isFocused())
+		if ((!focusChanged.isFocused()) && (config.alwaysOn() == false))
 		{
 			client.setInventoryDragDelay(DEFAULT_DELAY);
 		}

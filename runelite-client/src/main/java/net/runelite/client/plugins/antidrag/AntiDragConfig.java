@@ -29,16 +29,24 @@ import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 
 @ConfigGroup("antiDrag")
-public interface AntiDragConfig extends Config
-{
+public interface AntiDragConfig extends Config {
 	@ConfigItem(
-		keyName = "dragDelay",
-		name = "Drag Delay",
-		description = "Configures the inventory drag delay in client ticks (20ms)",
-		position = 1
+			keyName = "dragDelay",
+			name = "Drag Delay",
+			description = "Configures the inventory drag delay in client ticks (20ms)",
+			position = 1
 	)
-	default int dragDelay()
-	{
+	default int dragDelay() {
 		return 600 / 20; // one game tick
+	}
+
+	@ConfigItem(
+			keyName = "alwaysOn",
+			name = "Always On",
+			description = "Turns it regardless of shift.",
+			position = 2
+	)
+	default boolean alwaysOn() {
+		return false;
 	}
 }

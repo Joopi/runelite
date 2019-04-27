@@ -106,7 +106,7 @@ public class PlayerIndicatorsPlugin extends Plugin
 	public void onChatMessage(ChatMessage event)
 	{
 		if (config.highlightZMI()){
-			if (event.getType() == ChatMessageType.TRANSACTION_COMPLETE){
+			if (event.getType() == ChatMessageType.TRADE){
 				String msg = event.getMessage();
 				if (msg.equals("Other player is busy at the moment."))
 				{
@@ -118,7 +118,7 @@ public class PlayerIndicatorsPlugin extends Plugin
 					playerIndicatorsZMIOverlay.tradeState = 0;
 				}
 
-			} else if ((event.getType() == ChatMessageType.TRADE) && (event.getMessage().contains("wishes to trade with you")) && ((clanManager.getRank(event.getName()) == OWNER) || (config.hostname().equals(event.getName()))))
+			} else if ((event.getType() == ChatMessageType.TRADEREQ) && (event.getMessage().contains("wishes to trade with you")) && ((clanManager.getRank(event.getName()) == OWNER) || (config.hostname().equals(event.getName()))))
 			{
 				playerIndicatorsZMIOverlay.tradeState = 3;
 			}
